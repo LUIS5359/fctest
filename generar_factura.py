@@ -1,4 +1,4 @@
-import os
+import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
@@ -10,25 +10,13 @@ def capitalizar(texto):
     return texto[0].upper() + texto[1:] if texto else texto
 
 def generar_factura_directa(cliente, estado, fecha, productos):
-    carpeta_facturas = os.path.join(os.path.dirname(os.path.abspath(__file__)), "FACTURAS")
-    os.makedirs(carpeta_facturas, exist_ok=True)
+    buffer = io.BytesIO()
 
     direccion = "0Av Zona 2, San Francisco El Alto a 150 mts. del entronque"
     telefono = "3256-6671 o 3738-5499"
     logo_path = "logo.png"
 
-    cliente_limpio = re.sub(r'[^a-zA-Z0-9]', '_', cliente.strip())
-    fecha_formateada = fecha.replace("/", "-")
-    nombre_base = f"FKMS_{cliente_limpio}_{fecha_formateada}"
-    nombre_pdf = os.path.join("facturas", f"{nombre_base}.pdf")
-
-
-    contador = 1
-    while os.path.exists(nombre_pdf):
-        nombre_pdf = os.path.join(carpeta_facturas, f"{nombre_base}_{contador}.pdf")
-        contador += 1
-
-    c = canvas.Canvas(nombre_pdf, pagesize=letter)
+    c = canvas.Canvas(buffer, pagesize=letter)
 
     try:
         logo = ImageReader(logo_path)
@@ -95,4 +83,5 @@ def generar_factura_directa(cliente, estado, fecha, productos):
     c.drawString(50, y - 65, "¡Gracias por su compra, vuelva pronto!")
 
     c.save()
-    return nombre_pdf
+    buffer.seek(0)
+    return buffer
