@@ -3,6 +3,7 @@ from generar_factura import generar_factura_directa
 from datetime import datetime
 import re
 import os
+from flask import send_file
 
 app = Flask(__name__)
 
@@ -38,7 +39,15 @@ def generar_desde_texto():
 
         fecha_valida = validar_fecha(fecha)
         pdf_path = generar_factura_directa(cliente, estado, fecha_valida, productos)
-        return send_file(pdf_path, mimetype="application/pdf")
+        
+        return send_file(
+            pdf_path,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name=os.path.basename(pdf_path)
+        )
+
+    
 
     except Exception as e:
         return f"❌ Error al procesar el mensaje: {e}", 500
