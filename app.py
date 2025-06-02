@@ -2,6 +2,7 @@ from flask import Flask, request, send_file
 from generar_factura import generar_factura_directa
 from datetime import datetime
 import re
+import os
 
 app = Flask(__name__)
 
@@ -49,4 +50,5 @@ def validar_fecha(fecha_str):
         return datetime.today().strftime("%d/%m/%Y")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
