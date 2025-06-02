@@ -17,10 +17,11 @@ def generar_factura_directa(cliente, estado, fecha, productos):
     telefono = "3256-6671 o 3738-5499"
     logo_path = "logo.png"
 
-    cliente = re.sub(r'[^a-zA-Z0-9]', '_', cliente.strip())
+    cliente_limpio = re.sub(r'[^a-zA-Z0-9]', '_', cliente.strip())
     fecha_formateada = fecha.replace("/", "-")
-    nombre_base = f"Factura_{cliente}_{fecha_formateada}"
-    nombre_pdf = os.path.join(carpeta_facturas, f"{nombre_base}.pdf")
+    nombre_base = f"FKMS_{cliente_limpio}_{fecha_formateada}"
+    nombre_pdf = os.path.join("facturas", f"{nombre_base}.pdf")
+
 
     contador = 1
     while os.path.exists(nombre_pdf):
