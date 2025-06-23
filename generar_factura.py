@@ -2,9 +2,8 @@ import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
-from reportlab.lib.utils import ImageReader
+from reportlab.lib.utils import ImageReader, simpleSplit
 from datetime import datetime
-import re
 
 def capitalizar(texto):
     return texto[0].upper() + texto[1:] if texto else texto
@@ -43,10 +42,12 @@ def generar_factura_directa(cliente, estado, fecha, productos):
     y = 640
     c.setFont("Helvetica-Bold", 10)
     c.setFillColor(colors.HexColor("#003366"))
-    c.drawString(50, y, "Descripción")
-    c.drawString(250, y, "Cantidad")
-    c.drawString(350, y, "Precio")
-    c.drawString(450, y, "Total")
+    c.drawString(50, y, "DESCRIPCIÓN")
+    c.drawString(250, y, "CANTIDAD")
+    c.drawString(350, y, "PRECIO")
+    c.drawString(450, y, "TOTAL")
+    c.setStrokeColor(colors.HexColor("#003366"))
+    c.setLineWidth(1)
     c.line(50, y - 5, 500, y - 5)
 
     y -= 20
@@ -58,14 +59,23 @@ def generar_factura_directa(cliente, estado, fecha, productos):
             c.showPage()
             y = 750
 
-        c.drawString(50, y, capitalizar(descripcion[:40]))
-        c.drawString(250, y, str(cantidad))
-        c.drawString(350, y, f"Q {precio:.2f}")
-        c.drawString(450, y, f"Q {total:.2f}")
+        desc_lines = simpleSplit(capitalizar(descripcion), "Helvetica", 10, 180)
+        for idx, line in enumerate(desc_lines):
+            c.setFillColor(colors.black)
+            c.drawString(50, y, line)
+            if idx == 0:
+                c.drawString(250, y, str(cantidad))
+                c.drawString(350, y, f"Q {precio:.2f}")
+                c.drawString(450, y, f"Q {total:.2f}")
+            y -= 18  # Más espacio vertical
+
+        # Línea divisoria más visible
+        c.setStrokeColor(colors.HexColor("#333333"))
+        c.setLineWidth(0.8)
+        c.line(50, y + 10, 500, y + 10)
+        c.setLineWidth(0.5)  # Reset grosor para otras líneas
+
         total_factura += total
-        c.setStrokeColor(colors.lightgrey)
-        c.line(50, y - 5, 500, y - 5)
-        y -= 18
 
     if y < 100:
         c.showPage()
